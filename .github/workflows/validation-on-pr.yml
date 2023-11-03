@@ -1,0 +1,39 @@
+name: Translations Validation on PR
+
+on:
+  pull_request:
+    branches:
+      - "*"
+      - "*/*"
+
+jobs:
+  validate_pr_translations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # OR "2" -> To retrieve the preceding commit.
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          pip3 install jsonschema
+
+      - name: Find modified auth.json files
+        id: getfiles
+        run: |
+          echo "Changed files:" 
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'auth.json'
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'auth.json')
+          echo "::set-output name=all::${files}"
+
+      - name: Validate JSON files
+        if: ${{ steps.getfiles.outputs.all }}
+        run: |
+          python validate-on-pr.py auth-schema.json ${{ steps.getfiles.outputs.all }}
