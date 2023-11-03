@@ -25,15 +25,19 @@ jobs:
           npm install
           pip3 install jsonschema
 
-      - name: Find modified auth.json files
+      - name: Find and list modified auth.json files
         id: getfiles
         run: |
-          echo "Changed files:" 
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'auth.json'
-          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'auth.json')
-          echo "::set-output name=all::${files}"
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'auth.json' || true)
+          if [ -z "$files" ]; then
+            echo "No changed auth.json files to validate."
+            echo "::set-output name=files_to_validate::"
+          else
+            echo "Changed files: $files"
+            echo "::set-output name=files_to_validate::$files"
+          fi
 
       - name: Validate JSON files
-        if: ${{ steps.getfiles.outputs.all }}
+        if: steps.getfiles.outputs.files_to_validate
         run: |
-          python validate-on-pr.py auth-schema.json ${{ steps.getfiles.outputs.all }}
+          python validate_json.py auth-schema.json ${{ steps.getfiles.outputs.files_to_validate }}
