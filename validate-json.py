@@ -61,20 +61,3 @@ for root, dirs, files in os.walk(search_dir):
 
 if not all_files_valid:
     sys.exit(1)
-
-if __name__ == "__main__":
-    with open(schema_file, "r") as schema:
-        schema_data = json.load(schema)
-
-    all_files_valid = True
-
-    # Check only the files passed as arguments to the script
-    for file_path in sys.argv[1:]:
-        # Filter out non-JSON or other JSON files if necessary
-        if file_path.endswith("auth.json"):
-            is_file_valid = validate_json(file_path, schema_data)
-            if not is_file_valid:
-                all_files_valid = False
-
-    if not all_files_valid:
-        sys.exit(1)
