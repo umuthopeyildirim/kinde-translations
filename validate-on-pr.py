@@ -4,6 +4,7 @@ import sys
 import os
 
 # Function to validate a single JSON file against the provided schema
+# TODO REMOVE THIS FUNCTION
 
 
 def validate_json(file_path, schema_data):
