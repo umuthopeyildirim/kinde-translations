@@ -47,4 +47,4 @@ jobs:
       - name: Validate JSON files
         if: steps.getfiles.outputs.files_to_validate
         run: |
-          python3 validate-on-pr.py auth-schema.json ${{ steps.getfiles.outputs.files_to_validate }}
+          python3 validate-json.py auth-schema.json ${{ steps.getfiles.outputs.files_to_validate }}
