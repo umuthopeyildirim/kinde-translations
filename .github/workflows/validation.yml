@@ -16,12 +16,14 @@ jobs:
         with:
           repository: "kinde-oss/kinde-translations"
           ref: "main"
+          path: "base"
 
       - name: Checkout PR code
         uses: actions/checkout@v2
         with:
           repository: "${{ github.event.pull_request.head.repo.full_name }}"
           ref: "${{ github.event.pull_request.head.ref }}"
+          path: "pr"
 
       - name: Get changed files
         run: |
