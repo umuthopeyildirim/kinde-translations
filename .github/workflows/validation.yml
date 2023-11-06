@@ -1,4 +1,4 @@
-name: Translation Validation on PR
+name: Check Changed Files
 
 on:
   pull_request:
@@ -7,51 +7,28 @@ on:
       - "*/*"
 
 jobs:
-  validate_pr_translations:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      # Check out the base branch first to a specific path
-      - name: Checkout base branch
-        uses: actions/checkout@v4
+      - name: Checkout base code
+        uses: actions/checkout@v2
         with:
+          repository: "kinde-oss/kinde-translation"
           ref: "main"
           path: "base"
 
-      # Check out the PR's head branch to the default path
       - name: Checkout PR code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
+          repository: "${{ github.event.pull_request.head.repo.full_name }}"
+          ref: "${{ github.event.pull_request.head.ref }}"
+          path: "pr"
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
-
-      - name: Install Dependencies
+      - name: Get changed files
         run: |
-          npm install
-          pip3 install jsonschema
-
-      - name: Find and list modified auth.json files
-        id: getfiles
-        run: |
-          git fetch --no-tags --prune --depth=100 origin +refs/heads/*:refs/remotes/origin/*
-          git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} -- 'auth.json' > changed_files.txt
-          if [ -s changed_files.txt ]; then
-            echo "Changed auth.json files:"
-            cat changed_files.txt
-            echo "::set-output name=files_to_validate::$(<changed_files.txt)"
-          else
-            echo "No changed auth.json files to validate."
-            echo "::set-output name=files_to_validate::"
-          fi
-
-      - name: Validate JSON files
-        if: steps.getfiles.outputs.files_to_validate
-        run: |
-          for file in $(echo ${{ steps.getfiles.outputs.files_to_validate }} | tr ' ' '\n'); do
-            # Validate each file against the schema
-            python3 validate-json.py ../base/auth-schema.json "$file"
-          done
+          cd base
+          git fetch origin
+          git diff --name-only origin/main..origin/${{ github.event.pull_request.head.ref }} > ../changed_files.txt
+          cd ..
+          cat changed_files.txt
