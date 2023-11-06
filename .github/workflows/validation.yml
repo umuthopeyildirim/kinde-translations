@@ -31,5 +31,4 @@ jobs:
             cat changes.txt
           else
             echo "No changes detected."
-            echo "CHANGED_FILES=" >> $GITHUB_ENV
         shell: bash
