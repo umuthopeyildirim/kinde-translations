@@ -1,5 +1,4 @@
-name: Check Changed Files
-
+name: Validate JSON files
 on:
   pull_request:
     branches:
