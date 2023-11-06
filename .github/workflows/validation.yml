@@ -22,13 +22,14 @@ jobs:
 
       - name: List all changed files
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
-          done
+          echo "Changed files:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
 
       - name: Validate JSON files
-        if: steps.changed-files.outputs.all_changed_files
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          IFS=' ' read -r -a array <<< "$FILES"
+          for file in "${array[@]}"
+          do
             python3 validate-json.py auth-schema.json "$file"
           done
