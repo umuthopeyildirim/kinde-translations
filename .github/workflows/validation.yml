@@ -31,5 +31,5 @@ jobs:
         if: steps.changed-files.outputs.all_changed_files
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            python3 validate-json.py auth-schema.json file
+            python3 validate-json.py auth-schema.json "$file"
           done
