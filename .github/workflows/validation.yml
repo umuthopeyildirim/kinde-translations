@@ -13,15 +13,23 @@ jobs:
       - name: Checkout the PR branch
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0 # necessary to get full history for comparison
 
-      - name: Fetch the main branch
-        run: git fetch --no-tags --prune --depth=1 origin +refs/heads/main:refs/remotes/origin/main
-
-      - name: Find changes
-        id: files
+      - name: Setup Git to access main branch from upstream
         run: |
-          echo "Changed files:"
-          git diff --name-only origin/main...${{ github.sha }} > changed_files.txt
-          cat changed_files.txt
-          echo "::set-output name=changed_files::$(<changed_files.txt)"
+          git remote add upstream https://github.com/kinde-oss/kinde-translations.git
+          git fetch upstream main:upstream-main
+
+      - name: Find changes compared to main branch
+        id: find-changes
+        run: |
+          git diff --name-only upstream-main...${{ github.event.pull_request.head.sha }} > changes.txt
+          if [ -s changes.txt ]; then
+            echo "CHANGED_FILES=$(<changes.txt)" >> $GITHUB_ENV
+            echo "Changed files:"
+            cat changes.txt
+          else
+            echo "No changes detected."
+            echo "CHANGED_FILES=" >> $GITHUB_ENV
