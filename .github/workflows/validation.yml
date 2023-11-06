@@ -23,9 +23,8 @@ jobs:
           git fetch upstream main:upstream-main
 
       - name: Find changes compared to main branch
-        id: find-changes
         run: |
-          git diff --name-only upstream-main...${{ github.event.pull_request.head.sha }} > changes.txt
+          git diff --name-only upstream-main...${{ github.sha }} > changes.txt
           if [ -s changes.txt ]; then
             echo "CHANGED_FILES=$(<changes.txt)" >> $GITHUB_ENV
             echo "Changed files:"
@@ -33,3 +32,4 @@ jobs:
           else
             echo "No changes detected."
             echo "CHANGED_FILES=" >> $GITHUB_ENV
+        shell: bash
