@@ -1,8 +1,9 @@
-name: Translations - JSON Schema Validation
+name: Translations Validation
 
 on:
   push:
     branches:
+      - "*"
       - "*/*"
 
 jobs:
