@@ -29,6 +29,6 @@ jobs:
         run: |
           cd base
           git fetch origin
-          git diff --name-only origin/main..origin/${{ github.event.pull_request.head.ref }} > ../changed_files.txt
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > ../changed_files.txt
           cd ..
           cat changed_files.txt
