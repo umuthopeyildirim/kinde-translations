@@ -12,9 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # OR "2" -> To retrieve the preceding commit.
+          fetch-depth: 0
 
-      # Example 1
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v40
@@ -22,34 +21,15 @@ jobs:
           files: |
             **/auth.json
 
-        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
-        # with:
-        #   since_last_remote_commit: true
-
       - name: List all changed files
         run: |
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$file was changed"
           done
-    # steps:
-    #   - name: Checkout base code
-    #     uses: actions/checkout@v2
-    #     with:
-    #       repository: "kinde-oss/kinde-translations"
-    #       ref: "main"
-    #       path: "base"
 
-    #   - name: Checkout PR code
-    #     uses: actions/checkout@v2
-    #     with:
-    #       repository: "${{ github.event.pull_request.head.repo.full_name }}"
-    #       ref: "${{ github.event.pull_request.head.ref }}"
-    #       path: "pr"
-
-    #   - name: Get changed files
-    #     run: |
-    #       cd base
-    #       git fetch origin
-    #       git diff --name-only origin/${{ github.event.pull_request.base.ref }}..origin/${{ github.event.pull_request.head.ref }} > ../changed_files.txt
-    #       cd ..
-    #       cat changed_files.txt
+      - name: Validate JSON files
+        if: steps.changed-files.outputs.all_changed_files
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            python3 validate-json.py auth-schema.json file
+          done
