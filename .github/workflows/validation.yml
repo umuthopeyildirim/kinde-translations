@@ -31,4 +31,4 @@ jobs:
             echo "Files changed:"
             cat changed_files.txt
           else
-            echo "No files changed."
+            echo "No files changed. skipping"
